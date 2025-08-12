@@ -66,44 +66,6 @@
         .restaurant-card button:hover {
             background-color: #e65100;
         }
-        #restaurant-signup {
-            padding: 20px;
-            max-width: 100%;
-            box-sizing: border-box;
-            background-color: white;
-            border-radius: 8px;
-            margin-top: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: none; /* This hides the signup form */
-        }
-        #restaurant-signup h2 {
-            color: #d32f2f;
-            text-align: center;
-            font-size: 1.5em;
-        }
-        #restaurant-form input {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #009B77;
-            border-radius: 4px;
-            font-size: 1em;
-        }
-        #restaurant-form button {
-            width: 100%;
-            padding: 10px;
-            background: #009B77;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1em;
-        }
-        #signup-error {
-            color: red;
-            text-align: center;
-            font-size: 0.9em;
-        }
     </style>
 </head>
 <body>
@@ -111,24 +73,85 @@
         <button id="signup-btn">Sign Up</button>
         <button id="login-btn">Login</button>
     </div>
+    
     <div class="header">
         <h1>🇪🇹 HabeshaEats</h1>
         <p>Authentic Ethiopian Food Delivery</p>
     </div>
+    
     <div class="restaurant-list" id="restaurant-list">
         <!-- Restaurants will be loaded here by JavaScript -->
     </div>
-    <div id="restaurant-signup">
-        <h2>Join as a Restaurant</h2>
-        <form id="restaurant-form">
-            <input type="text" id="rest-name" placeholder="Restaurant Name (e.g., Elsa's Kitchen)" required>
-            <input type="text" id="rest-location" placeholder="Location (e.g., Johannesburg CBD)" required>
-            <input type="text" id="rest-menu" placeholder="Sample Menu Item (e.g., Doro Wat)" required>
-            <button type="submit">Sign Up</button>
-        </form>
-        <p id="signup-error"></p>
-    </div>
+
+    <!-- Load Supabase library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <script src="app.js" defer></script>
+    
+    <!-- Load our app script -->
+    <script>
+        // Your Supabase credentials
+        const SUPABASE_URL = 'https://vvbqipmmzqfyzjmepocp.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2YnFpcG1tenFmeXpqbWVwb2NwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3ODE0NDIsImV4cCI6MjA3MDM1NzQ0Mn0.76hWUm-gkDPwBSvqrxdmdQnMGzV4VtLfuhgZzY0YcT0';
+        
+        // Create Supabase client from the global object
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Function to load restaurants from Supabase
+        async function loadRestaurants() {
+            const { data: restaurants, error } = await supabaseClient
+                .from('restaurants')
+                .select('*');
+            
+            const container = document.querySelector('#restaurant-list');
+            
+            if (error) {
+                console.error('Error fetching restaurants:', error);
+                container.innerHTML = `<p style="color:red;">Error loading restaurants: ${error.message}</p>`;
+                return;
+            }
+            
+            if (!restaurants || restaurants.length === 0) {
+                container.innerHTML = '<p>No restaurants found.</p>';
+                return;
+            }
+            
+            // Build restaurant HTML
+            let html = '';
+            restaurants.forEach(restaurant => {
+                html += `
+                    <div class="restaurant-card">
+                        <h3>${restaurant.name}</h3>
+                        <p><strong>Address:</strong> ${restaurant.address || 'N/A'}</p>
+                        <p><strong>Phone:</strong> ${restaurant.phone || 'N/A'}</p>
+                        <p><strong>Currency:</strong> ${restaurant.currency || 'N/A'}</p>
+                        <button onclick="viewMenu('${restaurant.id}')">View Menu</button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Function to view menu (placeholder)
+        function viewMenu(restaurantId) {
+            alert(`Viewing menu for restaurant ${restaurantId} - we'll build this next!`);
+        }
+
+        // Setup auth button click events (placeholder alerts for now)
+        function setupAuthButtons() {
+            document.querySelector('#signup-btn').addEventListener('click', () => {
+                alert('Signup clicked! Authentication logic will be added soon.');
+            });
+            
+            document.querySelector('#login-btn').addEventListener('click', () => {
+                alert('Login clicked! Authentication logic will be added soon.');
+            });
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRestaurants();
+            setupAuthButtons();
+        });
+    </script>
 </body>
 </html>
