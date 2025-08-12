@@ -7,13 +7,13 @@
     <style>
         /* Ethiopian Color Scheme */
         :root {
-            --primary-color: #d32f2f;    /* Ethiopian Red */
-            --secondary-color: #ff6f00;  /* Ethiopian Orange */
-            --accent-color: #ffc107;     /* Ethiopian Gold */
-            --dark-color: #1a237e;      /* Ethiopian Blue */
-            --light-color: #f8f9fa;     /* Light Background */
-            --text-color: #212121;      /* Dark Text */
-            --border-color: #e0e0e0;    /* Light Border */
+            --primary-color: #d32f2f;
+            --secondary-color: #ff6f00;
+            --accent-color: #ffc107;
+            --dark-color: #1a237e;
+            --light-color: #f8f9fa;
+            --text-color: #212121;
+            --border-color: #e0e0e0;
         }
 
         * {
@@ -472,32 +472,67 @@
             text-decoration: underline;
         }
 
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border-left: 4px solid;
-        }
-
-        .alert-error {
-            background-color: #ffebee;
-            border-left-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .alert-success {
-            background-color: #e8f5e8;
-            border-left-color: #4caf50;
-            color: #2e7d32;
-        }
-
-        /* Loading */
+        /* Loading & Error States */
         .loading {
             text-align: center;
-            padding: 3rem;
+            padding: 2rem;
             color: #666;
         }
 
+        .error {
+            text-align: center;
+            padding: 2rem;
+            color: #d32f2f;
+            background: #ffebee;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        /* Alert */
+        .alert {
+            display: none;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .alert-success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #d32f2f;
+            border-left: 4px solid #d32f2f;
+        }
+
+        /* Restaurant Card Improvements */
+        .restaurant-card {
+            transition: transform 0.2s ease;
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Loading */
         .loading::after {
             content: '';
             display: inline-block;
@@ -649,86 +684,68 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script>
         // Supabase Configuration
-        const SUPABASE_URL = 'https://vvbqipmmzqfyzjmepocp.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2YnFpcG1tenFmeXpqbWVwb2NwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3ODE0NDIsImV4cCI6MjA3MDM1NzQ0Mn0.76hWUm-gkDPwBSvqrxdmdQnMGzV4VtLfuhgZzY0YcT0';
-        
-        // Initialize Supabase
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabase = supabase.createClient(
+            'https://vvbqipmmzqfyzjmepocp.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2YnFpcG1tenFmeXpqbWVwb2NwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3ODE0NDIsImV4cCI6MjA3MDM1NzQ0Mn0.76hWUm-gkDPwBSvqrxdmdQnMGzV4VtLfuhgZzY0YcT0'
+        );
 
-        // Global Variables
+        // Global State
         let currentUser = null;
 
         // Initialize App
-        document.addEventListener('DOMContentLoaded', function() {
-            checkUserSession();
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
             loadRestaurants();
             setupEventListeners();
         });
 
-        // Check if user is already logged in
-        async function checkUserSession() {
-            const { data: { user }, error } = await supabase.auth.getUser();
+        // Check Authentication
+        async function checkAuth() {
+            const { data: { user } } = await supabase.auth.getUser();
+            currentUser = user;
+            user ? showUserProfile() : showAuthButtons();
+        }
+
+        // Load Restaurants
+        async function loadRestaurants() {
+            const grid = document.getElementById('restaurant-grid');
+            grid.innerHTML = '<div class="loading">Loading...</div>';
             
-            if (user && !error) {
-                currentUser = user;
-                showUserMenu();
-            } else {
-                showAuthButtons();
+            try {
+                const { data: restaurants, error } = await supabase.from('restaurants').select('*');
+                if (error) throw error;
+                
+                if (restaurants && restaurants.length > 0) {
+                    grid.innerHTML = restaurants.map(r => `
+                        <div class="restaurant-card">
+                            <div class="restaurant-image">🍽️</div>
+                            <div class="restaurant-content">
+                                <h3>${r.name}</h3>
+                                <p>📍 ${r.address}</p>
+                                <p>📞 ${r.phone}</p>
+                                <p>💰 ${r.currency}</p>
+                                <button onclick="viewMenu('${r.id}')" class="btn-primary">View Menu</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = '<div class="error">No restaurants found</div>';
+                }
+            } catch (error) {
+                grid.innerHTML = `<div class="error">Error: ${error.message}</div>`;
             }
         }
 
         // Setup Event Listeners
         function setupEventListeners() {
-            // Signup form
-            document.getElementById('signup-form').addEventListener('submit', handleSignup);
-            
-            // Login form
-            document.getElementById('login-form').addEventListener('submit', handleLogin);
-            
-            // Close modal when clicking outside
-            document.getElementById('authModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    hideAuthModal();
-                }
+            // Auth modal
+            document.getElementById('authModal').addEventListener('click', (e) => {
+                if (e.target.id === 'authModal') hideAuthModal();
             });
-        }
-
-        // Load Restaurants
-        async function loadRestaurants() {
-            const restaurantGrid = document.getElementById('restaurant-grid');
             
-            try {
-                const { data: restaurants, error } = await supabase
-                    .from('restaurants')
-                    .select('*');
-                
-                if (error) throw error;
-                
-                if (restaurants && restaurants.length > 0) {
-                    restaurantGrid.innerHTML = restaurants.map(restaurant => `
-                        <div class="restaurant-card">
-                            <div class="restaurant-image">🍽️</div>
-                            <div class="restaurant-content">
-                                <h3 class="restaurant-name">${restaurant.name}</h3>
-                                <div class="restaurant-info">
-                                    <p><i>📍</i> ${restaurant.address}</p>
-                                    <p><i>📞</i> ${restaurant.phone}</p>
-                                    <p><i>💰</i> ${restaurant.currency}</p>
-                                </div>
-                                <div class="restaurant-actions">
-                                    <button class="btn btn-primary" onclick="viewMenu('${restaurant.id}')">View Menu</button>
-                                    <button class="btn btn-outline" onclick="orderNow('${restaurant.id}')">Order Now</button>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    restaurantGrid.innerHTML = '<p class="loading">No restaurants found</p>';
-                }
-            } catch (error) {
-                console.error('Error loading restaurants:', error);
-                restaurantGrid.innerHTML = '<p class="loading">Error loading restaurants</p>';
-            }
+            // Forms
+            document.getElementById('signup-form').addEventListener('submit', handleSignup);
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
         }
 
         // Authentication Functions
@@ -751,31 +768,22 @@
         }
 
         function hideAuthModal() {
-            const modal = document.getElementById('authModal');
-            modal.classList.remove('show');
-            clearAuthForms();
+            document.getElementById('authModal').classList.remove('show');
+            clearForms();
         }
 
         function switchTab(tab) {
-            const signupForm = document.getElementById('signup-form');
-            const loginForm = document.getElementById('login-form');
-            const authTabs = document.querySelectorAll('.auth-tab');
-            const authSwitch = document.getElementById('auth-switch-text');
-            
-            authTabs.forEach(tabElement => {
-                tabElement.classList.remove('active');
-            });
+            document.querySelectorAll('.auth-tab').forEach(tabElement => tabElement.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
             
             if (tab === 'signup') {
-                signupForm.classList.add('active');
-                loginForm.classList.remove('active');
-                authTabs[0].classList.add('active');
-                authSwitch.innerHTML = 'Already have an account? <a href="#" onclick="switchTab(\'login\')">Sign in</a>';
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('signup-form').classList.add('active');
+                document.getElementById('auth-switch-text').innerHTML = 'Already have an account? <a href="#" onclick="switchTab(\'login\')">Sign in</a>';
             } else {
-                loginForm.classList.add('active');
-                signupForm.classList.remove('active');
-                authTabs[1].classList.add('active');
-                authSwitch.innerHTML = 'Don\'t have an account? <a href="#" onclick="switchTab(\'signup\')">Sign up</a>';
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('login-form').classList.add('active');
+                document.getElementById('auth-switch-text').innerHTML = 'Don\'t have an account? <a href="#" onclick="switchTab(\'signup\')">Sign up</a>';
             }
         }
 
@@ -834,7 +842,7 @@
                 if (error) throw error;
                 
                 currentUser = data.user;
-                showUserMenu();
+                showUserProfile();
                 hideAuthModal();
                 showAlert('Login successful!', 'success');
                 
@@ -846,77 +854,53 @@
         async function logout() {
             await supabase.auth.signOut();
             currentUser = null;
-            hideUserMenu();
             showAuthButtons();
+            hideAuthModal();
             showAlert('Logged out successfully', 'success');
         }
 
         // UI Functions
-        function showUserMenu() {
-            const navButtons = document.getElementById('nav-buttons');
-            const userMenu = document.getElementById('user-menu');
-            const userAvatar = document.getElementById('user-avatar');
-            const userName = document.getElementById('user-name');
-            
-            navButtons.style.display = 'none';
-            userMenu.style.display = 'block';
-            
-            if (currentUser) {
-                const name = currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'User';
-                userName.textContent = name;
-                userAvatar.textContent = name.charAt(0).toUpperCase();
-            }
+        function showUserProfile() {
+            document.getElementById('nav-buttons').style.display = 'none';
+            document.getElementById('user-menu').style.display = 'flex';
+            document.getElementById('user-name').textContent = currentUser.user_metadata?.full_name || 'User';
+            document.getElementById('user-avatar').textContent = (currentUser.user_metadata?.full_name || 'U')[0].toUpperCase();
         }
 
         function showAuthButtons() {
-            const navButtons = document.getElementById('nav-buttons');
-            const userMenu = document.getElementById('user-menu');
-            
-            navButtons.style.display = 'flex';
-            userMenu.style.display = 'none';
+            document.getElementById('nav-buttons').style.display = 'flex';
+            document.getElementById('user-menu').style.display = 'none';
         }
 
         function toggleDropdown() {
-            const dropdown = document.getElementById('user-dropdown');
-            dropdown.classList.toggle('show');
+            document.getElementById('user-dropdown').classList.toggle('show');
         }
 
         function showAlert(message, type) {
-            const alertDiv = document.getElementById('auth-alert');
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
-            alertDiv.style.display = 'block';
-            
-            setTimeout(() => {
-                alertDiv.style.display = 'none';
-            }, 5000);
+            const alert = document.getElementById('auth-alert');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 3000);
         }
 
-        function clearAuthForms() {
-            document.getElementById('signup-form').reset();
-            document.getElementById('login-form').reset();
+        function clearForms() {
+            document.querySelectorAll('form').forEach(form => form.reset());
             document.getElementById('auth-alert').style.display = 'none';
         }
 
         // Placeholder Functions
-        function viewMenu(restaurantId) {
-            alert(`Viewing menu for restaurant ${restaurantId} - Feature coming soon!`);
-        }
-
-        function orderNow(restaurantId) {
-            if (!currentUser) {
-                showAlert('Please login to order', 'error');
-                showAuthModal('login');
-                return;
-            }
-            alert(`Ordering from restaurant ${restaurantId} - Feature coming soon!`);
+        function viewMenu(id) {
+            currentUser ? alert(`Menu for restaurant ${id} - Feature coming soon!`) : showAuthModal('login');
         }
 
         function viewProfile() {
+            hideUserDropdown();
             alert('Profile feature coming soon!');
         }
 
         function viewOrders() {
+            hideUserDropdown();
             alert('Order history feature coming soon!');
         }
 
@@ -931,4 +915,4 @@
         });
     </script>
 </body>
-                        </html>
+</html>
