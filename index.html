@@ -74,6 +74,7 @@
             border-radius: 8px;
             margin-top: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none; /* This hides the signup form */
         }
         #restaurant-signup h2 {
             color: #d32f2f;
@@ -110,16 +111,13 @@
         <button id="signup-btn">Sign Up</button>
         <button id="login-btn">Login</button>
     </div>
-
     <div class="header">
         <h1>🇪🇹 HabeshaEats</h1>
         <p>Authentic Ethiopian Food Delivery</p>
     </div>
-
     <div class="restaurant-list" id="restaurant-list">
         <!-- Restaurants will be loaded here by JavaScript -->
     </div>
-
     <div id="restaurant-signup">
         <h2>Join as a Restaurant</h2>
         <form id="restaurant-form">
@@ -130,8 +128,7 @@
         </form>
         <p id="signup-error"></p>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="app.js" defer></script>
 </body>
 </html>
