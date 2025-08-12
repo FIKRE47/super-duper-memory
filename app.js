@@ -1,50 +1,64 @@
 // Wait for everything to load
 window.addEventListener('load', function() {
+    console.log('HabeshaEats app starting...');
+    
     // Initialize Supabase with your credentials
     const supabase = supabase.createClient(
         'https://vvbqipmmzqfyzjmepocp.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2YnFpcG1tenFmeXpqbWVwb2NwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3ODE0NDIsImV4cCI6MjA3MDM1NzQ0Mn0.76hWUm-gkDPwBSvqrxdmdQnMGzV4VtLfuhgZzY0YcT0'
     );
 
+    console.log('Supabase initialized');
+
     // Function to load restaurants
     async function loadRestaurants() {
         console.log('Loading restaurants...');
         
-        const { data, error } = await supabase
-            .from('restaurants')
-            .select('*');
-        
-        if (error) {
-            console.error('Error loading restaurants:', error);
-            document.getElementById('restaurant-list').innerHTML = 
-                '<p>Error loading restaurants. Please check the console.</p>';
-            return;
-        }
-
-        console.log('Restaurants loaded:', data);
-        
+        // Show loading message
         const restaurantList = document.getElementById('restaurant-list');
-        restaurantList.innerHTML = '';
+        restaurantList.innerHTML = '<p>Loading restaurants...</p>';
+        
+        try {
+            console.log('Attempting to fetch from Supabase...');
+            const { data, error } = await supabase
+                .from('restaurants')
+                .select('*');
+            
+            console.log('Supabase response:', { data, error });
+            
+            if (error) {
+                console.error('Supabase error:', error);
+                restaurantList.innerHTML = `<p>Error: ${error.message}</p>`;
+                return;
+            }
 
-        if (data && data.length > 0) {
-            data.forEach(restaurant => {
-                const restaurantCard = document.createElement('div');
-                restaurantCard.className = 'restaurant-card';
-                restaurantCard.innerHTML = `
-                    <h3>${restaurant.name}</h3>
-                    <p><strong>Address:</strong> ${restaurant.address}</p>
-                    <p><strong>Phone:</strong> ${restaurant.phone}</p>
-                    <p><strong>Currency:</strong> ${restaurant.currency}</p>
-                    <button onclick="viewMenu('${restaurant.id}')">View Menu</button>
-                `;
-                restaurantList.appendChild(restaurantCard);
-            });
-        } else {
-            restaurantList.innerHTML = '<p>No restaurants found.</p>';
+            console.log('Restaurants data:', data);
+            
+            if (data && data.length > 0) {
+                restaurantList.innerHTML = '';
+                data.forEach(restaurant => {
+                    const restaurantCard = document.createElement('div');
+                    restaurantCard.className = 'restaurant-card';
+                    restaurantCard.innerHTML = `
+                        <h3>${restaurant.name}</h3>
+                        <p><strong>Address:</strong> ${restaurant.address}</p>
+                        <p><strong>Phone:</strong> ${restaurant.phone}</p>
+                        <p><strong>Currency:</strong> ${restaurant.currency}</p>
+                        <button onclick="viewMenu('${restaurant.id}')">View Menu</button>
+                    `;
+                    restaurantList.appendChild(restaurantCard);
+                });
+                console.log('Restaurant cards created:', data.length);
+            } else {
+                restaurantList.innerHTML = '<p>No restaurants found.</p>';
+            }
+        } catch (err) {
+            console.error('Network/JavaScript error:', err);
+            restaurantList.innerHTML = `<p>Network Error: ${err.message}</p>`;
         }
     }
 
-    // Load restaurants
+    // Load restaurants when page loads
     loadRestaurants();
 
     // Placeholder function for viewing menu
