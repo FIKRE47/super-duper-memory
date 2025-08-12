@@ -5,153 +5,930 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HabeshaEats - Ethiopian Food Delivery</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        /* Ethiopian Color Scheme */
+        :root {
+            --primary-color: #d32f2f;    /* Ethiopian Red */
+            --secondary-color: #ff6f00;  /* Ethiopian Orange */
+            --accent-color: #ffc107;     /* Ethiopian Gold */
+            --dark-color: #1a237e;      /* Ethiopian Blue */
+            --light-color: #f8f9fa;     /* Light Background */
+            --text-color: #212121;      /* Dark Text */
+            --border-color: #e0e0e0;    /* Light Border */
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
-            background-color: #f8f9fa;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Header */
         .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
             text-align: center;
-            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
         }
-        .auth-buttons {
-            text-align: right;
-            margin-bottom: 20px;
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="ethiopian-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23ethiopian-pattern)"/></svg>');
+            opacity: 0.1;
         }
-        .auth-buttons button {
-            margin-left: 10px;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
         }
-        .auth-buttons button:first-child {
-            background-color: #007bff;
-            color: white;
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
         }
-        .auth-buttons button:last-child {
-            background-color: #28a745;
-            color: white;
-        }
-        .restaurant-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .restaurant-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
+
+        /* Navigation */
+        .nav-container {
             background-color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .restaurant-card h3 {
-            margin-top: 0;
-            color: #d32f2f;
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
         }
-        .restaurant-card p {
-            margin: 5px 0;
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-btn.primary:hover {
+            background-color: #b71c1c;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .nav-btn.secondary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-info:hover {
+            background-color: var(--light-color);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+            z-index: 1000;
+        }
+
+        .dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-color);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: var(--accent-color);
+        }
+
+        /* Restaurant Cards */
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .restaurant-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .restaurant-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .restaurant-content {
+            padding: 1.5rem;
+        }
+
+        .restaurant-name {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .restaurant-info {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .restaurant-info p {
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .restaurant-info i {
+            color: var(--primary-color);
+            width: 16px;
+        }
+
+        .restaurant-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #b71c1c;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Authentication Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2rem;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .auth-tab.active {
+            color: var(--primary-color);
+        }
+
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 1.5rem;
             color: #666;
         }
-        .restaurant-card button {
-            background-color: #ff6f00;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
+
+        .auth-switch a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
         }
-        .restaurant-card button:hover {
-            background-color: #e65100;
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+
+        .alert-error {
+            background-color: #ffebee;
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .alert-success {
+            background-color: #e8f5e8;
+            border-left-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .restaurant-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .modal-content {
+                margin: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .restaurant-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="auth-buttons">
-        <button id="signup-btn">Sign Up</button>
-        <button id="login-btn">Login</button>
-    </div>
-    
-    <div class="header">
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav">
+            <div class="logo">🇪🇹 HabeshaEats</div>
+            <div class="nav-buttons" id="nav-buttons">
+                <button class="nav-btn primary" onclick="showAuthModal('signup')">Sign Up</button>
+                <button class="nav-btn secondary" onclick="showAuthModal('login')">Login</button>
+            </div>
+            <div class="user-menu" id="user-menu" style="display: none;">
+                <div class="user-info" onclick="toggleDropdown()">
+                    <div class="user-avatar" id="user-avatar">U</div>
+                    <span id="user-name">User</span>
+                </div>
+                <div class="dropdown" id="user-dropdown">
+                    <button class="dropdown-item" onclick="viewProfile()">My Profile</button>
+                    <button class="dropdown-item" onclick="viewOrders()">My Orders</button>
+                    <button class="dropdown-item" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="header">
         <h1>🇪🇹 HabeshaEats</h1>
         <p>Authentic Ethiopian Food Delivery</p>
-    </div>
-    
-    <div class="restaurant-list" id="restaurant-list">
-        <!-- Restaurants will be loaded here by JavaScript -->
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h2 class="section-title">Featured Restaurants</h2>
+        
+        <!-- Restaurant Grid -->
+        <div class="restaurant-grid" id="restaurant-grid">
+            <div class="loading">Loading restaurants</div>
+        </div>
     </div>
 
-    <!-- Load Supabase library -->
+    <!-- Authentication Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Welcome to HabeshaEats</h2>
+            </div>
+            <div class="modal-body">
+                <div id="auth-alert"></div>
+                
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('signup')">Sign Up</button>
+                    <button class="auth-tab" onclick="switchTab('login')">Login</button>
+                </div>
+
+                <!-- Sign Up Form -->
+                <form id="signup-form" class="auth-form active">
+                    <div class="form-group">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-phone">Phone Number</label>
+                        <input type="tel" id="signup-phone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm">Confirm Password</label>
+                        <input type="password" id="signup-confirm" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Create Account</button>
+                </form>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Sign In</button>
+                </form>
+
+                <div class="auth-switch">
+                    <span id="auth-switch-text">Don't have an account? <a href="#" onclick="switchTab('signup')">Sign up</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    
-    <!-- Load our app script -->
     <script>
-        // Your Supabase credentials
+        // Supabase Configuration
         const SUPABASE_URL = 'https://vvbqipmmzqfyzjmepocp.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2YnFpcG1tenFmeXpqbWVwb2NwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3ODE0NDIsImV4cCI6MjA3MDM1NzQ0Mn0.76hWUm-gkDPwBSvqrxdmdQnMGzV4VtLfuhgZzY0YcT0';
         
-        // Create Supabase client from the global object
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Initialize Supabase
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Function to load restaurants from Supabase
-        async function loadRestaurants() {
-            const { data: restaurants, error } = await supabaseClient
-                .from('restaurants')
-                .select('*');
-            
-            const container = document.querySelector('#restaurant-list');
-            
-            if (error) {
-                console.error('Error fetching restaurants:', error);
-                container.innerHTML = `<p style="color:red;">Error loading restaurants: ${error.message}</p>`;
-                return;
-            }
-            
-            if (!restaurants || restaurants.length === 0) {
-                container.innerHTML = '<p>No restaurants found.</p>';
-                return;
-            }
-            
-            // Build restaurant HTML
-            let html = '';
-            restaurants.forEach(restaurant => {
-                html += `
-                    <div class="restaurant-card">
-                        <h3>${restaurant.name}</h3>
-                        <p><strong>Address:</strong> ${restaurant.address || 'N/A'}</p>
-                        <p><strong>Phone:</strong> ${restaurant.phone || 'N/A'}</p>
-                        <p><strong>Currency:</strong> ${restaurant.currency || 'N/A'}</p>
-                        <button onclick="viewMenu('${restaurant.id}')">View Menu</button>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
+        // Global Variables
+        let currentUser = null;
 
-        // Function to view menu (placeholder)
-        function viewMenu(restaurantId) {
-            alert(`Viewing menu for restaurant ${restaurantId} - we'll build this next!`);
-        }
-
-        // Setup auth button click events (placeholder alerts for now)
-        function setupAuthButtons() {
-            document.querySelector('#signup-btn').addEventListener('click', () => {
-                alert('Signup clicked! Authentication logic will be added soon.');
-            });
-            
-            document.querySelector('#login-btn').addEventListener('click', () => {
-                alert('Login clicked! Authentication logic will be added soon.');
-            });
-        }
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            checkUserSession();
             loadRestaurants();
-            setupAuthButtons();
+            setupEventListeners();
+        });
+
+        // Check if user is already logged in
+        async function checkUserSession() {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            
+            if (user && !error) {
+                currentUser = user;
+                showUserMenu();
+            } else {
+                showAuthButtons();
+            }
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Signup form
+            document.getElementById('signup-form').addEventListener('submit', handleSignup);
+            
+            // Login form
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            
+            // Close modal when clicking outside
+            document.getElementById('authModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideAuthModal();
+                }
+            });
+        }
+
+        // Load Restaurants
+        async function loadRestaurants() {
+            const restaurantGrid = document.getElementById('restaurant-grid');
+            
+            try {
+                const { data: restaurants, error } = await supabase
+                    .from('restaurants')
+                    .select('*');
+                
+                if (error) throw error;
+                
+                if (restaurants && restaurants.length > 0) {
+                    restaurantGrid.innerHTML = restaurants.map(restaurant => `
+                        <div class="restaurant-card">
+                            <div class="restaurant-image">🍽️</div>
+                            <div class="restaurant-content">
+                                <h3 class="restaurant-name">${restaurant.name}</h3>
+                                <div class="restaurant-info">
+                                    <p><i>📍</i> ${restaurant.address}</p>
+                                    <p><i>📞</i> ${restaurant.phone}</p>
+                                    <p><i>💰</i> ${restaurant.currency}</p>
+                                </div>
+                                <div class="restaurant-actions">
+                                    <button class="btn btn-primary" onclick="viewMenu('${restaurant.id}')">View Menu</button>
+                                    <button class="btn btn-outline" onclick="orderNow('${restaurant.id}')">Order Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    restaurantGrid.innerHTML = '<p class="loading">No restaurants found</p>';
+                }
+            } catch (error) {
+                console.error('Error loading restaurants:', error);
+                restaurantGrid.innerHTML = '<p class="loading">Error loading restaurants</p>';
+            }
+        }
+
+        // Authentication Functions
+        function showAuthModal(type) {
+            const modal = document.getElementById('authModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const authSwitch = document.getElementById('auth-switch-text');
+            
+            modal.classList.add('show');
+            
+            if (type === 'signup') {
+                modalTitle.textContent = 'Create Account';
+                authSwitch.innerHTML = 'Already have an account? <a href="#" onclick="switchTab(\'login\')">Sign in</a>';
+                switchTab('signup');
+            } else {
+                modalTitle.textContent = 'Welcome Back';
+                authSwitch.innerHTML = 'Don\'t have an account? <a href="#" onclick="switchTab(\'signup\')">Sign up</a>';
+                switchTab('login');
+            }
+        }
+
+        function hideAuthModal() {
+            const modal = document.getElementById('authModal');
+            modal.classList.remove('show');
+            clearAuthForms();
+        }
+
+        function switchTab(tab) {
+            const signupForm = document.getElementById('signup-form');
+            const loginForm = document.getElementById('login-form');
+            const authTabs = document.querySelectorAll('.auth-tab');
+            const authSwitch = document.getElementById('auth-switch-text');
+            
+            authTabs.forEach(tabElement => {
+                tabElement.classList.remove('active');
+            });
+            
+            if (tab === 'signup') {
+                signupForm.classList.add('active');
+                loginForm.classList.remove('active');
+                authTabs[0].classList.add('active');
+                authSwitch.innerHTML = 'Already have an account? <a href="#" onclick="switchTab(\'login\')">Sign in</a>';
+            } else {
+                loginForm.classList.add('active');
+                signupForm.classList.remove('active');
+                authTabs[1].classList.add('active');
+                authSwitch.innerHTML = 'Don\'t have an account? <a href="#" onclick="switchTab(\'signup\')">Sign up</a>';
+            }
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const phone = document.getElementById('signup-phone').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm').value;
+            
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            full_name: name,
+                            phone: phone
+                        }
+                    }
+                });
+                
+                if (error) throw error;
+                
+                showAlert('Account created successfully! Please check your email to verify.', 'success');
+                
+                setTimeout(() => {
+                    hideAuthModal();
+                    switchTab('login');
+                }, 2000);
+                
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                
+                if (error) throw error;
+                
+                currentUser = data.user;
+                showUserMenu();
+                hideAuthModal();
+                showAlert('Login successful!', 'success');
+                
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            currentUser = null;
+            hideUserMenu();
+            showAuthButtons();
+            showAlert('Logged out successfully', 'success');
+        }
+
+        // UI Functions
+        function showUserMenu() {
+            const navButtons = document.getElementById('nav-buttons');
+            const userMenu = document.getElementById('user-menu');
+            const userAvatar = document.getElementById('user-avatar');
+            const userName = document.getElementById('user-name');
+            
+            navButtons.style.display = 'none';
+            userMenu.style.display = 'block';
+            
+            if (currentUser) {
+                const name = currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'User';
+                userName.textContent = name;
+                userAvatar.textContent = name.charAt(0).toUpperCase();
+            }
+        }
+
+        function showAuthButtons() {
+            const navButtons = document.getElementById('nav-buttons');
+            const userMenu = document.getElementById('user-menu');
+            
+            navButtons.style.display = 'flex';
+            userMenu.style.display = 'none';
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('user-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('auth-alert');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function clearAuthForms() {
+            document.getElementById('signup-form').reset();
+            document.getElementById('login-form').reset();
+            document.getElementById('auth-alert').style.display = 'none';
+        }
+
+        // Placeholder Functions
+        function viewMenu(restaurantId) {
+            alert(`Viewing menu for restaurant ${restaurantId} - Feature coming soon!`);
+        }
+
+        function orderNow(restaurantId) {
+            if (!currentUser) {
+                showAlert('Please login to order', 'error');
+                showAuthModal('login');
+                return;
+            }
+            alert(`Ordering from restaurant ${restaurantId} - Feature coming soon!`);
+        }
+
+        function viewProfile() {
+            alert('Profile feature coming soon!');
+        }
+
+        function viewOrders() {
+            alert('Order history feature coming soon!');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const userMenu = document.getElementById('user-menu');
+            const dropdown = document.getElementById('user-dropdown');
+            
+            if (userMenu && !userMenu.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
         });
     </script>
 </body>
-</html>
+                        </html>
